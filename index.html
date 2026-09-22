@@ -2655,4 +2655,400 @@ function renderHistory(){
         </td>
 
         <td>
+  table.innerHTML =
+    triggeredEvents.map(item => `
+      <tr>
+        <td>
+          18:${String(item.time).padStart(2, "0")}
+        </td>
 
+        <td>
+          ${item.facility}
+        </td>
+
+        <td>
+          ${item.infrastructure}
+        </td>
+
+        <td>
+          ${item.item}
+        </td>
+
+        <td>
+          ${item.value} ${item.unit}
+        </td>
+
+        <td>
+          <span class="badge warning">WARNING</span>
+        </td>
+
+        <td>
+          ${
+            recordedEvents.includes(item.time)
+              ? `<span class="recorded">記録済み</span>`
+              : `<button class="small-btn" onclick="markRecorded(${item.time})">
+                   紙に記録
+                 </button>`
+          }
+        </td>
+      </tr>
+    `).join("");
+
+  updateSummary();
+  updateReport();
+}
+
+function renderFacilities() {
+  const grid = document.getElementById("facilityGrid");
+  if (!grid) return;
+
+  grid.innerHTML = facilities.map(f => `
+    <div class="facility-card" onclick="openFacilityDetail('${f.name}')">
+      <div class="facility-top">
+        <span>${f.infrastructure}</span>
+        <span class="badge normal">NORMAL</span>
+      </div>
+
+      <h3>${f.name}</h3>
+
+      <div class="facility-value">
+        ${f.value} ${f.unit}
+      </div>
+
+      <div class="facility-label">
+        現在値
+      </div>
+    </div>
+  `).join("");
+}
+
+function updateSummary() {
+  const el = document.getElementById("summaryText");
+  if (!el) return;
+
+  if (triggeredEvents.length === 0) {
+    el.textContent = "現在、異常は確認されていません。";
+    return;
+  }
+
+  const recorded = recordedEvents.length;
+
+  el.innerHTML = `
+    異常発生：<strong>${triggeredEvents.length}件</strong>
+    ／ 紙記録済み：<strong>${recorded}件</strong>
+  `;
+}
+
+function updateSystemStatus() {
+  const power = document.getElementById("powerStatus");
+  const communication = document.getElementById("communicationStatus");
+  const water = document.getElementById("waterStatus");
+
+  if (power) {
+    power.textContent = triggeredEvents.some(e => e.infrastructure === "電力")
+      ? "WARNING"
+      : "NORMAL";
+  }
+
+  if (communication) {
+    communication.textContent = triggeredEvents.some(e => e.infrastructure === "通信")
+      ? "WARNING"
+      : "NORMAL";
+  }
+
+  if (water) {
+    water.textContent = triggeredEvents.some(e => e.infrastructure === "給水")
+      ? "WARNING"
+      : "NORMAL";
+  }
+}
+
+function updateRecord() {
+  const count = document.getElementById("recordCount");
+  if (count) {
+    count.textContent = `${recordedEvents.length}件`;
+  }
+}
+
+function renderHistory() {
+  const table = document.getElementById("historyTable");
+  if (!table) return;
+
+  if (triggeredEvents.length === 0) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          現在、警報履歴はありません。
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  table.innerHTML = triggeredEvents.map(item => `
+    <tr>
+      <td>18:${String(item.time).padStart(2, "0")}</td>
+      <td>${item.facility}</td>
+      <td>${item.infrastructure}</td>
+      <td>${item.item}</td>
+      <td>${item.value} ${item.unit}</td>
+      <td><span class="badge warning">WARNING</span></td>
+    </tr>
+  `).join("");
+}
+
+function updateReport() {
+  const reportButton = document.getElementById("reportButton");
+  const reportStatus = document.getElementById("reportStatus");
+
+  const enoughRecords = recordedEvents.length >= 3;
+  const enoughHistory = viewedHistory;
+  const enoughFacilities = viewedFacilities;
+  const enoughDetails = viewedDetails >= 3;
+
+  const ready =
+    enoughRecords &&
+    enoughHistory &&
+    enoughFacilities &&
+    enoughDetails;
+
+  if (reportButton) {
+    reportButton.disabled = !ready;
+  }
+
+  if (reportStatus) {
+    if (reportConfirmed) {
+      reportStatus.textContent = "報告確認済み";
+      reportStatus.className = "report-ok";
+    } else if (ready) {
+      reportStatus.textContent = "報告可能";
+      reportStatus.className = "report-ready";
+    } else {
+      reportStatus.textContent = "情報整理中";
+      reportStatus.className = "report-wait";
+    }
+  }
+}
+
+function confirmReport() {
+  const ready =
+    recordedEvents.length >= 3 &&
+    viewedHistory &&
+    viewedFacilities &&
+    viewedDetails >= 3;
+
+  if (!ready) {
+    alert(
+      "報告に必要な情報が不足しています。\n" +
+      "記録・履歴・関連施設・施設詳細を確認してください。"
+    );
+    return;
+  }
+
+  reportConfirmed = true;
+
+  updateReport();
+
+  alert(
+    "状況報告を確認しました。\n\n" +
+    "原因・状況を整理したうえで、復旧操作へ進めます。"
+  );
+}
+
+function startRecovery() {
+  if (!reportConfirmed) {
+    alert(
+      "復旧操作を行う前に、原因と状況を確認し、報告を完了してください。"
+    );
+    return;
+  }
+
+  const overlay = document.getElementById("recoveryOverlay");
+  if (overlay) {
+    overlay.classList.add("show");
+  }
+
+  setTimeout(executeRecovery, 3000);
+}
+
+function executeRecovery() {
+  const overlay = document.getElementById("recoveryOverlay");
+
+  if (overlay) {
+    overlay.innerHTML = `
+      <div class="recovery-box">
+        <div class="recovery-title">SYSTEM RECOVERY</div>
+        <div class="recovery-text">
+          復旧処理を実行しています…
+        </div>
+      </div>
+    `;
+  }
+
+  setTimeout(() => {
+    facilities.forEach(f => {
+      if (f.infrastructure === "通信") {
+        f.value = "0.42";
+        f.unit = "sec";
+      }
+
+      if (f.infrastructure === "電力") {
+        f.value = "100.0";
+        f.unit = "%";
+      }
+
+      if (f.infrastructure === "給水") {
+        f.value = "0.43";
+        f.unit = "MPa";
+      }
+    });
+
+    if (overlay) {
+      overlay.innerHTML = `
+        <div class="recovery-box">
+          <div class="recovery-title">SYSTEM RECOVERY</div>
+
+          <div class="recovery-complete">
+            復旧処理が完了しました。
+          </div>
+
+          <div class="recovery-status">
+            <div>⚡ 電力 <strong>NORMAL</strong></div>
+            <div>📡 通信 <strong>NORMAL</strong></div>
+            <div>💧 給水 <strong>NORMAL</strong></div>
+          </div>
+
+          <p>
+            青葉市のインフラシステムは正常な状態に復帰しました。
+          </p>
+
+          <button class="primary-btn" onclick="showComplete()">
+            業務終了へ
+          </button>
+        </div>
+      `;
+
+      updateSystemStatus();
+      renderFacilities();
+    }
+  }, 2500);
+}
+
+function showComplete() {
+  const overlay = document.getElementById("recoveryOverlay");
+
+  if (overlay) {
+    overlay.innerHTML = `
+      <div class="recovery-box complete-box">
+
+        <div class="complete-title">
+          中央監視業務 完了
+        </div>
+
+        <p>
+          本日の緊急対応を終了します。
+        </p>
+
+        <div class="mission-complete">
+          MISSION COMPLETE
+        </div>
+
+        <p class="paper-check">
+          中央監視業務記録票を確認してください。
+        </p>
+
+        <button class="primary-btn" onclick="closeRecovery()">
+          閉じる
+        </button>
+
+      </div>
+    `;
+  }
+}
+
+function closeRecovery() {
+  const overlay = document.getElementById("recoveryOverlay");
+
+  if (overlay) {
+    overlay.classList.remove("show");
+  }
+}
+
+function renderSystemCards() {
+  const container = document.getElementById("systemCards");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="system-card">
+      <div class="system-icon">⚡</div>
+      <div>
+        <div class="system-name">電力</div>
+        <div id="powerStatus" class="system-status">
+          NORMAL
+        </div>
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-icon">📡</div>
+      <div>
+        <div class="system-name">通信</div>
+        <div id="communicationStatus" class="system-status">
+          NORMAL
+        </div>
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-icon">💧</div>
+      <div>
+        <div class="system-name">給水</div>
+        <div id="waterStatus" class="system-status">
+          NORMAL
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateClock() {
+  const clock = document.getElementById("clock");
+  if (!clock) return;
+
+  const minutes = Math.floor(elapsedSeconds / 60);
+  const seconds = elapsedSeconds % 60;
+
+  const hour = 18 + Math.floor(minutes / 60);
+  const minute = minutes % 60;
+
+  clock.textContent =
+    `${String(hour).padStart(2, "0")}:` +
+    `${String(minute).padStart(2, "0")}:` +
+    `${String(seconds).padStart(2, "0")}`;
+}
+
+function updateAll() {
+  updateClock();
+  triggerEvents();
+  updateSystemStatus();
+  updateRecord();
+  updateSummary();
+  updateReport();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderSystemCards();
+  renderFacilities();
+  renderLogs();
+  renderHistory();
+  updateAll();
+
+  const startButton = document.getElementById("startButton");
+
+  if (startButton) {
+    startButton.addEventListener("click", startWork);
+  }
+});
+</script>
+</body>
+</html>
