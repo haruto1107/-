@@ -1,0 +1,2658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#18242f">
+
+<title>青葉市危機管理センター｜中央監視システム</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Noto Sans JP",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
+  background:#eef1f3;
+  color:#1d2730;
+}
+
+button{
+  font:inherit;
+}
+
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* ===== START ===== */
+
+#startScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:linear-gradient(135deg,#18242f,#253746);
+}
+
+.startCard{
+  width:min(720px,100%);
+  background:#fff;
+  border-radius:18px;
+  padding:40px;
+  box-shadow:0 24px 70px rgba(0,0,0,.25);
+}
+
+.startLogo{
+  font-size:14px;
+  color:#6c7780;
+  letter-spacing:.08em;
+  margin-bottom:12px;
+}
+
+.startTitle{
+  font-size:32px;
+  font-weight:800;
+  margin:0;
+}
+
+.startSub{
+  margin-top:8px;
+  color:#6c7780;
+}
+
+.startStatus{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:28px 0;
+}
+
+.startStatus div{
+  border:1px solid #d9dfe4;
+  border-radius:12px;
+  padding:16px;
+  background:#f8fafb;
+}
+
+.startStatus small{
+  display:block;
+  color:#6c7780;
+  margin-bottom:6px;
+}
+
+.startButton{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:16px;
+  background:#356fae;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.manualStart{
+  width:100%;
+  margin-top:10px;
+  border:1px solid #d9dfe4;
+  border-radius:10px;
+  padding:13px;
+  background:#fff;
+  cursor:pointer;
+}
+
+/* ===== APP ===== */
+
+#app{
+  min-height:100vh;
+}
+
+.topbar{
+  height:64px;
+  background:#18242f;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.brandTitle{
+  font-weight:800;
+}
+
+.brandSub{
+  font-size:11px;
+  opacity:.65;
+}
+
+.topRight{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  font-size:13px;
+}
+
+.online{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.onlineDot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#55c982;
+}
+
+.clock{
+  font-variant-numeric:tabular-nums;
+}
+
+/* ===== LAYOUT ===== */
+
+.layout{
+  display:flex;
+  min-height:calc(100vh - 64px);
+}
+
+.sidebar{
+  width:220px;
+  background:#22313e;
+  color:#fff;
+  padding:18px 12px;
+  flex-shrink:0;
+}
+
+.navTitle{
+  color:#91a1ad;
+  font-size:11px;
+  padding:10px 12px;
+  letter-spacing:.08em;
+}
+
+.navButton{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:#dbe3e8;
+  border:0;
+  padding:13px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-bottom:3px;
+}
+
+.navButton:hover,
+.navButton.active{
+  background:#314554;
+  color:#fff;
+}
+
+.main{
+  flex:1;
+  min-width:0;
+  padding:20px;
+}
+
+.statusStrip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+
+.statusBox{
+  background:#fff;
+  border:1px solid #d9dfe4;
+  border-radius:10px;
+  padding:12px 14px;
+}
+
+.statusBox small{
+  color:#6c7780;
+  display:block;
+  font-size:11px;
+}
+
+.statusBox strong{
+  display:block;
+  margin-top:4px;
+}
+
+/* ===== PAGE ===== */
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.pageHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:16px;
+}
+
+.pageTitle{
+  font-size:24px;
+  font-weight:800;
+  margin:0;
+}
+
+.pageDescription{
+  color:#6c7780;
+  margin-top:5px;
+  font-size:13px;
+}
+
+.card{
+  background:#fff;
+  border:1px solid #d9dfe4;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:16px;
+}
+
+.cardTitle{
+  font-weight:800;
+  margin-bottom:14px;
+}
+
+/* ===== NOTICE ===== */
+
+.notice{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  background:#fff7df;
+  border:1px solid #ecd99a;
+  color:#6e5300;
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:16px;
+}
+
+.noticeIcon{
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:#d9ad29;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:800;
+  flex-shrink:0;
+}
+
+/* ===== SUMMARY ===== */
+
+.summaryGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.summaryCard{
+  background:#fff;
+  border:1px solid #d9dfe4;
+  border-radius:12px;
+  padding:18px;
+}
+
+.summaryTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.summaryName{
+  font-weight:800;
+}
+
+.statusBadge{
+  display:inline-block;
+  padding:4px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.normal{
+  background:#edf7f1;
+  color:#28794b;
+}
+
+.warning{
+  background:#fff7df;
+  color:#9a6a00;
+}
+
+.alert{
+  background:#fff0f0;
+  color:#a33a3a;
+}
+
+.summaryValue{
+  font-size:28px;
+  font-weight:800;
+  margin-top:14px;
+}
+
+.summaryUnit{
+  color:#6c7780;
+  font-size:12px;
+}
+
+/* ===== FACILITIES ===== */
+
+.facilityGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.facility{
+  border:1px solid #d9dfe4;
+  border-radius:10px;
+  padding:15px;
+  background:#fff;
+  cursor:pointer;
+}
+
+.facility:hover{
+  border-color:#356fae;
+}
+
+.facilityHeader{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.facilityName{
+  font-weight:700;
+}
+
+.facilityInfra{
+  font-size:11px;
+  color:#6c7780;
+  margin-top:5px;
+}
+
+.facilityValue{
+  font-size:22px;
+  font-weight:800;
+  margin-top:15px;
+}
+
+/* ===== TABLE ===== */
+
+.tableWrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th{
+  background:#f3f5f6;
+  text-align:left;
+  padding:11px;
+  white-space:nowrap;
+}
+
+td{
+  padding:11px;
+  border-top:1px solid #e4e8eb;
+  white-space:nowrap;
+}
+
+.empty{
+  text-align:center;
+  color:#8a949b;
+  padding:30px;
+}
+
+/* ===== BUTTON ===== */
+
+.btn{
+  border:1px solid #ccd4da;
+  background:#fff;
+  border-radius:8px;
+  padding:9px 13px;
+  cursor:pointer;
+}
+
+.btn:hover{
+  background:#f5f7f8;
+}
+
+.btnPrimary{
+  background:#356fae;
+  color:#fff;
+  border-color:#356fae;
+}
+
+.btnDanger{
+  background:#a33a3a;
+  color:#fff;
+  border-color:#a33a3a;
+}
+
+.buttonRow{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* ===== MODAL ===== */
+
+.modalBackdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,25,34,.58);
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modalBackdrop.show{
+  display:flex;
+}
+
+.modal{
+  width:min(620px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 25px 80px rgba(0,0,0,.3);
+}
+
+.modalHeader{
+  padding:18px 20px;
+  border-bottom:1px solid #e1e5e8;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.modalTitle{
+  font-weight:800;
+}
+
+.modalBody{
+  padding:20px;
+}
+
+.closeBtn{
+  border:0;
+  background:#f0f2f3;
+  border-radius:7px;
+  width:34px;
+  height:34px;
+  cursor:pointer;
+}
+
+/* ===== RECOVERY ===== */
+
+#recoveryOverlay{
+  position:fixed;
+  inset:0;
+  background:#101820;
+  color:#fff;
+  z-index:300;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+#recoveryOverlay.show{
+  display:flex;
+}
+
+.recoveryTitle{
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.recoveryText{
+  margin-top:18px;
+  font-size:18px;
+  color:#c9d3da;
+}
+
+.loader{
+  width:220px;
+  height:4px;
+  background:#30404d;
+  margin:30px auto 0;
+  overflow:hidden;
+}
+
+.loaderBar{
+  height:100%;
+  background:#fff;
+  width:0;
+  animation:load 2s linear forwards;
+}
+
+@keyframes load{
+  to{width:100%}
+}
+
+/* ===== COMPLETE ===== */
+
+#completeScreen{
+  position:fixed;
+  inset:0;
+  background:#f3f6f7;
+  z-index:250;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:25px;
+}
+
+#completeScreen.show{
+  display:flex;
+}
+
+.completeBox{
+  width:min(650px,100%);
+  background:#fff;
+  border:1px solid #d9dfe4;
+  border-radius:18px;
+  padding:45px 30px;
+  box-shadow:0 20px 60px rgba(0,0,0,.12);
+}
+
+.completeIcon{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:#edf7f1;
+  color:#28794b;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  margin:0 auto 20px;
+}
+
+.completeTitle{
+  font-size:30px;
+  font-weight:900;
+}
+
+.completeText{
+  margin-top:12px;
+  color:#66727b;
+  line-height:1.8;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:800px){
+
+  .topbar{
+    padding:0 12px;
+  }
+
+  .brandSub{
+    display:none;
+  }
+
+  .topRight{
+    gap:8px;
+  }
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    width:100%;
+    display:flex;
+    overflow-x:auto;
+    padding:7px;
+    position:sticky;
+    top:64px;
+    z-index:40;
+  }
+
+  .navTitle{
+    display:none;
+  }
+
+  .navButton{
+    width:auto;
+    white-space:nowrap;
+    margin:0;
+  }
+
+  .main{
+    padding:12px;
+  }
+
+  .statusStrip{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .summaryGrid,
+  .facilityGrid{
+    grid-template-columns:1fr;
+  }
+
+  .pageTitle{
+    font-size:20px;
+  }
+
+  .startCard{
+    padding:25px;
+  }
+
+  .startTitle{
+    font-size:25px;
+  }
+
+  .startStatus{
+    grid-template-columns:1fr;
+  }
+
+  .recoveryTitle{
+    font-size:28px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- START -->
+
+<section id="startScreen">
+
+  <div class="startCard">
+
+    <div class="startLogo">
+      青葉市危機管理センター
+    </div>
+
+    <h1 class="startTitle">
+      中央監視システム
+    </h1>
+
+    <div class="startSub">
+      中央監視オペレーター業務端末
+    </div>
+
+    <div class="startStatus">
+
+      <div>
+        <small>システム状態</small>
+        <strong style="color:#28794b">
+          SYSTEM NORMAL
+        </strong>
+      </div>
+
+      <div>
+        <small>勤務時間</small>
+        <strong>18:00 – 18:45</strong>
+      </div>
+
+      <div>
+        <small>オペレーター</small>
+        <strong>未接続</strong>
+      </div>
+
+    </div>
+
+    <button
+      class="startButton"
+      onclick="startWork()">
+      勤務開始
+    </button>
+
+    <button
+      class="manualStart"
+      onclick="openManual()">
+      業務マニュアルを確認
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- APP -->
+
+<section id="app" class="hidden">
+
+<header class="topbar">
+
+  <div>
+    <div class="brandTitle">
+      青葉市危機管理センター
+    </div>
+
+    <div class="brandSub">
+      CENTRAL MONITORING SYSTEM
+    </div>
+  </div>
+
+  <div class="topRight">
+
+    <div class="online">
+      <span class="onlineDot"></span>
+      ONLINE
+    </div>
+
+    <div id="topClock" class="clock">
+      18:00:00
+    </div>
+
+  </div>
+
+</header>
+
+
+<div class="layout">
+
+<aside class="sidebar">
+
+  <div class="navTitle">
+    MONITORING
+  </div>
+
+  <button
+    class="navButton active"
+    onclick="showView('monitor',this)">
+    中央監視
+  </button>
+
+  <button
+    class="navButton"
+    onclick="showView('history',this)">
+    警報履歴
+  </button>
+
+  <button
+    class="navButton"
+    onclick="showView('facilities',this)">
+    施設一覧
+  </button>
+
+  <div class="navTitle">
+    OPERATION
+  </div>
+
+  <button
+    class="navButton"
+    onclick="showView('record',this)">
+    業務記録
+  </button>
+
+  <button
+    class="navButton"
+    onclick="showView('report',this)">
+    報告準備
+  </button>
+
+  <button
+    class="navButton"
+    onclick="showView('system',this)">
+    システム状態
+  </button>
+
+</aside>
+
+
+<main class="main">
+
+  <div class="statusStrip">
+
+    <div class="statusBox">
+      <small>OPERATOR</small>
+      <strong id="operatorStatus">
+        接続中
+      </strong>
+    </div>
+
+    <div class="statusBox">
+      <small>SHIFT</small>
+      <strong>
+        18:00 – 18:45
+      </strong>
+    </div>
+
+    <div class="statusBox">
+      <small>SYSTEM STATUS</small>
+      <strong id="systemStatus">
+        NORMAL
+      </strong>
+    </div>
+
+    <div class="statusBox">
+      <small>REMAINING</small>
+      <strong id="remainingTime">
+        45:00
+      </strong>
+    </div>
+
+  </div>
+
+
+<!-- MONITOR -->
+
+<section id="view-monitor" class="page active">
+
+  <div class="pageHeader">
+
+    <div>
+      <h2 class="pageTitle">
+        中央監視
+      </h2>
+
+      <div class="pageDescription">
+        電力・通信・給水インフラの状態を監視しています。
+      </div>
+    </div>
+
+    <button
+      class="btn"
+      onclick="alarmTest()">
+      警報テスト
+    </button>
+
+  </div>
+
+
+  <div class="notice">
+
+    <div class="noticeIcon">
+      !
+    </div>
+
+    <div>
+      <strong>監視記録について</strong><br>
+      警報発生時は画面上の情報だけで判断せず、
+      <strong>
+        紙の監視記録に時刻・施設名・数値・対応を記録してください。
+      </strong>
+    </div>
+
+  </div>
+
+
+  <div class="summaryGrid">
+
+    <div class="summaryCard">
+
+      <div class="summaryTop">
+
+        <div class="summaryName">
+          ⚡ 電力
+        </div>
+
+        <span
+          id="powerStatus"
+          class="statusBadge normal">
+          NORMAL
+        </span>
+
+      </div>
+
+      <div
+        id="powerValue"
+        class="summaryValue">
+        100.0%
+      </div>
+
+      <div class="summaryUnit">
+        系統供給率
+      </div>
+
+    </div>
+
+
+    <div class="summaryCard">
+
+      <div class="summaryTop">
+
+        <div class="summaryName">
+          📡 通信
+        </div>
+
+        <span
+          id="commStatus"
+          class="statusBadge normal">
+          NORMAL
+        </span>
+
+      </div>
+
+      <div
+        id="commValue"
+        class="summaryValue">
+        0.42 sec
+      </div>
+
+      <div class="summaryUnit">
+        応答時間
+      </div>
+
+    </div>
+
+
+    <div class="summaryCard">
+
+      <div class="summaryTop">
+
+        <div class="summaryName">
+          💧 給水
+        </div>
+
+        <span
+          id="waterStatus"
+          class="statusBadge normal">
+          NORMAL
+        </span>
+
+      </div>
+
+      <div
+        id="waterValue"
+        class="summaryValue">
+        0.42 MPa
+      </div>
+
+      <div class="summaryUnit">
+        水圧
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="cardTitle">
+      施設監視
+    </div>
+
+    <div
+      id="facilityGrid"
+      class="facilityGrid">
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="cardTitle">
+      監視ログ
+    </div>
+
+    <div class="tableWrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>時刻</th>
+            <th>施設</th>
+            <th>インフラ</th>
+            <th>項目</th>
+            <th>数値</th>
+            <th>状態</th>
+            <th>記録</th>
+          </tr>
+        </thead>
+
+        <tbody id="logTable">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- HISTORY -->
+
+<section id="view-history" class="page">
+
+  <div class="pageHeader">
+
+    <div>
+      <h2 class="pageTitle">
+        警報履歴
+      </h2>
+
+      <div class="pageDescription">
+        発生した警報を時系列で確認します。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="tableWrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>時刻</th>
+            <th>施設</th>
+            <th>インフラ</th>
+            <th>項目</th>
+            <th>数値</th>
+            <th>状態</th>
+          </tr>
+        </thead>
+
+        <tbody id="historyTable">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- FACILITIES -->
+
+<section id="view-facilities" class="page">
+
+  <div class="pageHeader">
+
+    <div>
+      <h2 class="pageTitle">
+        施設一覧
+      </h2>
+
+      <div class="pageDescription">
+        監視対象施設の現在状態。
+      </div>
+    </div>
+
+  </div>
+
+  <div
+    id="allFacilities"
+    class="facilityGrid">
+  </div>
+
+</section>
+
+
+<!-- RECORD -->
+
+<section id="view-record" class="page">
+
+  <div class="pageHeader">
+
+    <div>
+      <h2 class="pageTitle">
+        業務記録
+      </h2>
+
+      <div class="pageDescription">
+        システム上で確認できる監視記録です。
+        紙の記録票への記入も行ってください。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="cardTitle">
+      本日の監視記録
+    </div>
+
+    <div id="recordSummary">
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- REPORT -->
+
+<section id="view-report" class="page">
+
+  <div class="pageHeader">
+
+    <div>
+      <h2 class="pageTitle">
+        報告準備
+      </h2>
+
+      <div class="pageDescription">
+        発生した異常を整理し、報告内容を確認してください。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="cardTitle">
+      状況整理
+    </div>
+
+    <div id="reportContent">
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="buttonRow">
+
+      <button
+        id="reportButton"
+        class="btn btnPrimary"
+        onclick="confirmReport()"
+        disabled>
+        報告確認
+      </button>
+
+      <button
+        id="recoveryButton"
+        class="btn btnDanger"
+        onclick="startRecovery()"
+        disabled>
+        復旧開始
+      </button>
+
+    </div>
+
+    <p
+      id="reportMessage"
+      style="color:#6c7780;font-size:13px;margin-top:12px">
+      まず状況を整理してください。
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- SYSTEM -->
+
+<section id="view-system" class="page">
+
+  <div class="pageHeader">
+
+    <div>
+      <h2 class="pageTitle">
+        システム状態
+      </h2>
+
+      <div class="pageDescription">
+        中央監視システムの現在状態。
+      </div>
+    </div>
+
+  </div>
+
+  <div
+    id="systemCards"
+    class="summaryGrid">
+  </div>
+
+</section>
+
+</main>
+
+</div>
+
+</section>
+  <!-- =========================
+     ALERT MODAL
+========================= -->
+
+<div id="alertModal" class="modalBackdrop">
+
+  <div class="modal">
+
+    <div class="modalHeader">
+
+      <div class="modalTitle">
+        ⚠ 監視警報
+      </div>
+
+      <button
+        class="closeBtn"
+        onclick="closeModal()">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modalBody">
+
+      <div
+        id="alertMain"
+        style="
+          font-size:19px;
+          font-weight:800;
+          line-height:1.7;
+        ">
+      </div>
+
+      <div
+        id="alertInfo"
+        style="
+          margin-top:15px;
+          padding:13px;
+          background:#f5f7f8;
+          border-radius:8px;
+          font-size:13px;
+        ">
+      </div>
+
+      <div
+        class="buttonRow"
+        style="margin-top:18px">
+
+        <button
+          class="btn btnPrimary"
+          onclick="closeModal()">
+          確認
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     FACILITY DETAIL MODAL
+========================= -->
+
+<div
+  id="facilityModal"
+  class="modalBackdrop">
+
+  <div class="modal">
+
+    <div class="modalHeader">
+
+      <div
+        id="facilityModalTitle"
+        class="modalTitle">
+        施設詳細
+      </div>
+
+      <button
+        class="closeBtn"
+        onclick="closeDetail()">
+        ×
+      </button>
+
+    </div>
+
+    <div
+      id="facilityModalBody"
+      class="modalBody">
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     MANUAL MODAL
+========================= -->
+
+<div
+  id="manualModal"
+  class="modalBackdrop">
+
+  <div class="modal">
+
+    <div class="modalHeader">
+
+      <div class="modalTitle">
+        中央監視オペレーター 業務マニュアル
+      </div>
+
+      <button
+        class="closeBtn"
+        onclick="closeManual()">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modalBody">
+
+      <h3>1｜基本業務</h3>
+
+      <p>
+        中央監視オペレーターは、
+        電力・通信・給水などの都市インフラを監視し、
+        異常を整理・記録・報告します。
+      </p>
+
+
+      <h3>2｜通常監視</h3>
+
+      <ul>
+        <li>NORMAL → 継続監視</li>
+        <li>WARNING → 数値・時刻・施設を確認して記録</li>
+        <li>ALERT → 関連施設・履歴を確認して報告準備</li>
+      </ul>
+
+
+      <h3>3｜警報発生時</h3>
+
+      <ol>
+        <li>異常を確認する</li>
+        <li>数値と基準値を確認する</li>
+        <li>関連施設を確認する</li>
+        <li>履歴を確認する</li>
+        <li>紙に記録する</li>
+        <li>状況を判断する</li>
+        <li>必要に応じて報告する</li>
+      </ol>
+
+
+      <h3>4｜判断基準</h3>
+
+      <ul>
+        <li>1施設・1回のWARNING → 記録して継続監視</li>
+        <li>同一施設で繰り返す → 履歴を確認</li>
+        <li>複数施設が同時刻 → 施設間を比較</li>
+        <li>同一インフラで複数施設 → 系統全体を確認</li>
+        <li>複数インフラで異常 → 共通する要因を考える</li>
+      </ul>
+
+
+      <h3>5｜重要事項</h3>
+
+      <ul>
+        <li>1つの異常だけで重大と判断しない</li>
+        <li>小さなWARNINGも記録する</li>
+        <li>発生時刻を必ず比較する</li>
+        <li>関連施設を確認する</li>
+        <li>原因不明の状態では復旧しない</li>
+      </ul>
+
+
+      <h3>6｜緊急時の流れ</h3>
+
+      <p>
+        <strong>
+          確認 → 比較 → 分析 → 報告 → 復旧
+        </strong>
+      </p>
+
+
+      <div
+        style="
+          margin-top:20px;
+          padding:14px;
+          background:#fff7df;
+          border:1px solid #ecd99a;
+          border-radius:8px;
+        ">
+
+        <strong>通信監視基準</strong><br>
+
+        応答時間が
+        <strong>1.00秒を超えた場合</strong>、
+        紙の監視記録に必ず記録してください。
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     RECOVERY OVERLAY
+========================= -->
+
+<div id="recoveryOverlay">
+
+  <div>
+
+    <div class="recoveryTitle">
+      SYSTEM RECOVERY
+    </div>
+
+    <div
+      id="recoveryText"
+      class="recoveryText">
+      復旧処理を開始しています。
+    </div>
+
+    <div class="loader">
+      <div class="loaderBar"></div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     COMPLETE
+========================= -->
+
+<div id="completeScreen">
+
+  <div class="completeBox">
+
+    <div class="completeIcon">
+      ✓
+    </div>
+
+    <div class="completeTitle">
+      中央監視業務 完了
+    </div>
+
+    <div class="completeText">
+
+      本日の緊急対応を終了します。<br>
+
+      青葉市のインフラシステムは
+      正常な状態に復帰しました。<br><br>
+
+      <strong>
+        中央監視業務記録票を確認してください。
+      </strong>
+
+      <br><br>
+
+      MISSION COMPLETE
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+"use strict";
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+const EVENTS = [
+
+  {
+    time:10,
+    facility:"東部通信局",
+    infra:"通信",
+    item:"応答時間",
+    value:"1.06 sec",
+    status:"WARNING"
+  },
+
+  {
+    time:11,
+    facility:"南部通信局",
+    infra:"通信",
+    item:"応答時間",
+    value:"1.09 sec",
+    status:"WARNING"
+  },
+
+  {
+    time:12,
+    facility:"中央通信ノード",
+    infra:"通信",
+    item:"応答時間",
+    value:"1.04 sec",
+    status:"WARNING"
+  },
+
+  {
+    time:13,
+    facility:"東部変電所",
+    infra:"電力",
+    item:"系統供給率",
+    value:"96.8 %",
+    status:"WARNING"
+  },
+
+  {
+    time:14,
+    facility:"北部給水センター",
+    infra:"給水",
+    item:"水圧",
+    value:"0.36 MPa",
+    status:"WARNING"
+  },
+
+  {
+    time:15,
+    facility:"西部給水施設",
+    infra:"給水",
+    item:"水圧",
+    value:"0.35 MPa",
+    status:"WARNING"
+  }
+
+];
+
+
+const FACILITIES = [
+
+  {
+    name:"東部通信局",
+    infra:"通信",
+    value:"0.42 sec"
+  },
+
+  {
+    name:"南部通信局",
+    infra:"通信",
+    value:"0.43 sec"
+  },
+
+  {
+    name:"中央通信ノード",
+    infra:"通信",
+    value:"0.41 sec"
+  },
+
+  {
+    name:"東部変電所",
+    infra:"電力",
+    value:"100.0 %"
+  },
+
+  {
+    name:"北部給水センター",
+    infra:"給水",
+    value:"0.42 MPa"
+  },
+
+  {
+    name:"西部給水施設",
+    infra:"給水",
+    value:"0.43 MPa"
+  },
+
+  {
+    name:"中央変電所",
+    infra:"電力",
+    value:"100.0 %"
+  },
+
+  {
+    name:"南部変電所",
+    infra:"電力",
+    value:"100.0 %"
+  },
+
+  {
+    name:"中央給水センター",
+    infra:"給水",
+    value:"0.43 MPa"
+  }
+
+];
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let started = false;
+
+let elapsedSeconds = 0;
+
+let timer = null;
+
+let triggeredEvents = [];
+
+let recordedEvents = new Set();
+
+let viewedHistory = false;
+
+let viewedFacilities = false;
+
+let viewedDetails = 0;
+
+let reportConfirmed = false;
+
+
+/* =====================================================
+   START
+===================================================== */
+
+function startWork(){
+
+  if(started){
+    return;
+  }
+
+  started = true;
+
+  document
+    .getElementById("startScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("app")
+    .classList.remove("hidden");
+
+  updateAll();
+
+  timer = setInterval(tick,1000);
+
+}
+
+
+/* =====================================================
+   TIMER
+===================================================== */
+
+function tick(){
+
+  if(!started){
+    return;
+  }
+
+  elapsedSeconds++;
+
+  if(elapsedSeconds > 2700){
+
+    elapsedSeconds = 2700;
+
+    clearInterval(timer);
+
+  }
+
+  updateAll();
+
+}
+
+
+function simMinute(){
+
+  return Math.floor(
+    elapsedSeconds / 60
+  );
+
+}
+
+
+function simTime(){
+
+  const total =
+    18 * 60 + simMinute();
+
+  const hour =
+    Math.floor(total / 60);
+
+  const minute =
+    total % 60;
+
+  return (
+    String(hour).padStart(2,"0")
+    +
+    ":"
+    +
+    String(minute).padStart(2,"0")
+  );
+
+}
+
+
+function remainingTime(){
+
+  const remaining =
+    Math.max(
+      0,
+      2700 - elapsedSeconds
+    );
+
+  const min =
+    Math.floor(remaining / 60);
+
+  const sec =
+    remaining % 60;
+
+  return (
+    String(min).padStart(2,"0")
+    +
+    ":"
+    +
+    String(sec).padStart(2,"0")
+  );
+
+}
+
+
+/* =====================================================
+   EVENT ENGINE
+===================================================== */
+
+function triggerEvents(){
+
+  EVENTS.forEach(item=>{
+
+    const alreadyTriggered =
+      triggeredEvents.some(
+        e => e.time === item.time
+      );
+
+    if(
+      simMinute() >= item.time &&
+      !alreadyTriggered
+    ){
+
+      triggeredEvents.push(item);
+
+      addLog(item);
+
+      showAlert(item);
+
+    }
+
+  });
+
+}
+
+
+/* =====================================================
+   ALERT
+===================================================== */
+
+function showAlert(item){
+
+  let message = "";
+
+  if(item.infra === "通信"){
+
+    message =
+      "「" +
+      item.facility +
+      "」の応答時間が1秒を超えました。<br>" +
+      "紙の監視記録に必ず記録してください。";
+
+  }
+  else if(item.infra === "電力"){
+
+    message =
+      "「" +
+      item.facility +
+      "」の系統供給率に異常が発生しました。<br>" +
+      "紙の監視記録に必ず記録してください。";
+
+  }
+  else{
+
+    message =
+      "「" +
+      item.facility +
+      "」の水圧に異常が発生しました。<br>" +
+      "紙の監視記録に必ず記録してください。";
+
+  }
+
+  document.getElementById(
+    "alertMain"
+  ).innerHTML = message;
+
+  document.getElementById(
+    "alertInfo"
+  ).innerHTML =
+
+    "<strong>発生時刻：</strong> " +
+    simTime() +
+    "<br>" +
+
+    "<strong>施設：</strong> " +
+    item.facility +
+    "<br>" +
+
+    "<strong>項目：</strong> " +
+    item.item +
+    "<br>" +
+
+    "<strong>数値：</strong> " +
+    item.value +
+    "<br>" +
+
+    "<strong>状態：</strong> " +
+    item.status;
+
+
+  document
+    .getElementById("alertModal")
+    .classList.add("show");
+
+  beep();
+
+}
+
+
+function closeModal(){
+
+  document
+    .getElementById("alertModal")
+    .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   SOUND
+===================================================== */
+
+function beep(){
+
+  try{
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!AudioContext){
+      return;
+    }
+
+    const ctx =
+      new AudioContext();
+
+    const osc =
+      ctx.createOscillator();
+
+    const gain =
+      ctx.createGain();
+
+    osc.frequency.value = 880;
+
+    gain.gain.value = .06;
+
+    osc.connect(gain);
+
+    gain.connect(
+      ctx.destination
+    );
+
+    osc.start();
+
+    osc.stop(
+      ctx.currentTime + .18
+    );
+
+  }
+  catch(error){
+
+    console.log(
+      "Alarm sound unavailable"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   ALARM TEST
+===================================================== */
+
+function alarmTest(){
+
+  document.getElementById(
+    "alertMain"
+  ).innerHTML =
+    "警報テストを実施しました。";
+
+  document.getElementById(
+    "alertInfo"
+  ).innerHTML =
+
+    "<strong>通知音：</strong> 正常<br>" +
+
+    "<strong>画面表示：</strong> 正常<br>" +
+
+    "<strong>警報システム：</strong> 正常<br>" +
+
+    "<strong>テスト時刻：</strong> " +
+    simTime();
+
+
+  document
+    .getElementById("alertModal")
+    .classList.add("show");
+
+  beep();
+
+}
+
+
+/* =====================================================
+   VIEW
+===================================================== */
+
+function showView(view,button){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      el => el.classList.remove("active")
+    );
+
+  const target =
+    document.getElementById(
+      "view-" + view
+    );
+
+  if(target){
+
+    target.classList.add("active");
+
+  }
+
+
+  document
+    .querySelectorAll(".navButton")
+    .forEach(
+      el => el.classList.remove("active")
+    );
+
+  if(button){
+
+    button.classList.add("active");
+
+  }
+
+
+  if(view === "history"){
+
+    viewedHistory = true;
+
+  }
+
+
+  if(view === "facilities"){
+
+    viewedFacilities = true;
+
+  }
+
+
+  updateAll();
+
+}
+
+
+/* =====================================================
+   MANUAL
+===================================================== */
+
+function openManual(){
+
+  document
+    .getElementById("manualModal")
+    .classList.add("show");
+
+}
+
+
+function closeManual(){
+
+  document
+    .getElementById("manualModal")
+    .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   FACILITY DETAIL
+===================================================== */
+
+function openFacilityDetail(index){
+
+  const facility =
+    FACILITIES[index];
+
+  viewedDetails++;
+
+  document.getElementById(
+    "facilityModalTitle"
+  ).textContent =
+    facility.name;
+
+
+  document.getElementById(
+    "facilityModalBody"
+  ).innerHTML = `
+
+    <div class="summaryGrid">
+
+      <div class="summaryCard">
+
+        <small>施設</small>
+
+        <div
+          class="summaryValue"
+          style="font-size:20px">
+          ${facility.name}
+        </div>
+
+      </div>
+
+      <div class="summaryCard">
+
+        <small>インフラ</small>
+
+        <div
+          class="summaryValue"
+          style="font-size:20px">
+          ${facility.infra}
+        </div>
+
+      </div>
+
+      <div class="summaryCard">
+
+        <small>現在値</small>
+
+        <div
+          class="summaryValue"
+          style="font-size:20px">
+          ${facility.value}
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <strong>施設履歴</strong>
+
+      <p style="color:#6c7780">
+        この施設で発生した監視履歴を確認できます。
+      </p>
+
+    </div>
+
+  `;
+
+
+  document
+    .getElementById("facilityModal")
+    .classList.add("show");
+
+  updateAll();
+
+}
+
+
+function closeDetail(){
+
+  document
+    .getElementById("facilityModal")
+    .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   LOG
+===================================================== */
+
+function addLog(item){
+
+  renderLogs();
+
+}
+
+
+function markRecorded(time){
+
+  recordedEvents.add(time);
+
+  renderLogs();
+
+  updateAll();
+
+}
+
+
+function renderLogs(){
+
+  const table =
+    document.getElementById("logTable");
+
+  if(!table){
+    return;
+  }
+
+
+  if(triggeredEvents.length === 0){
+
+    table.innerHTML =
+      '<tr><td colspan="7" class="empty">' +
+      '現在、警報はありません。' +
+      '</td></tr>';
+
+    return;
+
+  }
+
+
+  table.innerHTML =
+    triggeredEvents.map(item=>{
+
+      const recorded =
+        recordedEvents.has(
+          item.time
+        );
+
+      return `
+
+        <tr>
+
+          <td>
+            18:${String(item.time).padStart(2,"0")}
+          </td>
+
+          <td>
+            ${item.facility}
+          </td>
+
+          <td>
+            ${item.infra}
+          </td>
+
+          <td>
+            ${item.item}
+          </td>
+
+          <td>
+            ${item.value}
+          </td>
+
+          <td>
+
+            <span class="statusBadge warning">
+              ${item.status}
+            </span>
+
+          </td>
+
+          <td>
+
+            ${
+              recorded
+
+              ?
+
+              '<span style="color:#28794b;font-weight:700">' +
+              '記録済' +
+              '</span>'
+
+              :
+
+              `<button
+                class="btn"
+                onclick="markRecorded(${item.time})">
+                紙に記録
+              </button>`
+            }
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   FACILITIES
+===================================================== */
+
+function renderFacilities(){
+
+  const grid =
+    document.getElementById(
+      "facilityGrid"
+    );
+
+  const all =
+    document.getElementById(
+      "allFacilities"
+    );
+
+
+  const html =
+    FACILITIES.map(
+      (facility,index)=>{
+
+        const event =
+          triggeredEvents.find(
+            e =>
+              e.facility ===
+              facility.name
+          );
+
+
+        const status =
+          event
+          ? "WARNING"
+          : "NORMAL";
+
+
+        const cls =
+          event
+          ? "warning"
+          : "normal";
+
+
+        const value =
+          event
+          ? event.value
+          : facility.value;
+
+
+        return `
+
+          <div
+            class="facility"
+            onclick="openFacilityDetail(${index})">
+
+            <div class="facilityHeader">
+
+              <div>
+
+                <div class="facilityName">
+                  ${facility.name}
+                </div>
+
+                <div class="facilityInfra">
+                  ${facility.infra}
+                </div>
+
+              </div>
+
+              <span
+                class="statusBadge ${cls}">
+                ${status}
+              </span>
+
+            </div>
+
+            <div class="facilityValue">
+              ${value}
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+
+  if(grid){
+    grid.innerHTML = html;
+  }
+
+  if(all){
+    all.innerHTML = html;
+  }
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function updateSummary(){
+
+  const powerEvent =
+    triggeredEvents.find(
+      e => e.infra === "電力"
+    );
+
+
+  const commEvents =
+    triggeredEvents.filter(
+      e => e.infra === "通信"
+    );
+
+
+  const waterEvents =
+    triggeredEvents.filter(
+      e => e.infra === "給水"
+    );
+
+
+  document.getElementById(
+    "powerStatus"
+  ).textContent =
+    powerEvent
+    ? "WARNING"
+    : "NORMAL";
+
+
+  document.getElementById(
+    "powerStatus"
+  ).className =
+    "statusBadge " +
+    (
+      powerEvent
+      ? "warning"
+      : "normal"
+    );
+
+
+  document.getElementById(
+    "powerValue"
+  ).textContent =
+    powerEvent
+    ? powerEvent.value
+    : "100.0%";
+
+
+  const latestComm =
+    commEvents[
+      commEvents.length - 1
+    ];
+
+
+  document.getElementById(
+    "commStatus"
+  ).textContent =
+    latestComm
+    ? "WARNING"
+    : "NORMAL";
+
+
+  document.getElementById(
+    "commStatus"
+  ).className =
+    "statusBadge " +
+    (
+      latestComm
+      ? "warning"
+      : "normal"
+    );
+
+
+  document.getElementById(
+    "commValue"
+  ).textContent =
+    latestComm
+    ? latestComm.value
+    : "0.42 sec";
+
+
+  const latestWater =
+    waterEvents[
+      waterEvents.length - 1
+    ];
+
+
+  document.getElementById(
+    "waterStatus"
+  ).textContent =
+    latestWater
+    ? "WARNING"
+    : "NORMAL";
+
+
+  document.getElementById(
+    "waterStatus"
+  ).className =
+    "statusBadge " +
+    (
+      latestWater
+      ? "warning"
+      : "normal"
+    );
+
+
+  document.getElementById(
+    "waterValue"
+  ).textContent =
+    latestWater
+    ? latestWater.value
+    : "0.42 MPa";
+
+}
+
+
+/* =====================================================
+   SYSTEM STATUS
+===================================================== */
+
+function updateSystemStatus(){
+
+  const status =
+    triggeredEvents.length > 0
+    ? "WARNING"
+    : "NORMAL";
+
+
+  const el =
+    document.getElementById(
+      "systemStatus"
+    );
+
+
+  el.textContent =
+    status;
+
+
+  el.style.color =
+    status === "WARNING"
+    ? "#9a6a00"
+    : "#28794b";
+
+}
+
+
+/* =====================================================
+   RECORD
+===================================================== */
+
+function updateRecord(){
+
+  const box =
+    document.getElementById(
+      "recordSummary"
+    );
+
+
+  if(triggeredEvents.length === 0){
+
+    box.innerHTML =
+      "<p style='color:#6c7780'>" +
+      "まだ監視記録はありません。" +
+      "</p>";
+
+    return;
+
+  }
+
+
+  box.innerHTML = `
+
+    <div class="tableWrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>時刻</th>
+            <th>施設</th>
+            <th>インフラ</th>
+            <th>数値</th>
+            <th>紙記録</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${
+            triggeredEvents.map(item=>`
+
+              <tr>
+
+                <td>
+                  18:${String(item.time).padStart(2,"0")}
+                </td>
+
+                <td>
+                  ${item.facility}
+                </td>
+
+                <td>
+                  ${item.infra}
+                </td>
+
+                <td>
+                  ${item.value}
+                </td>
+
+                <td>
+
+                  ${
+                    recordedEvents.has(item.time)
+                    ? "✓ 記録済"
+                    : "未記録"
+                  }
+
+                </td>
+
+              </tr>
+
+            `).join("")
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   HISTORY
+===================================================== */
+
+function renderHistory(){
+
+  const table =
+    document.getElementById(
+      "historyTable"
+    );
+
+
+  if(triggeredEvents.length === 0){
+
+    table.innerHTML =
+      '<tr><td colspan="6" class="empty">' +
+      '警報履歴はありません。' +
+      '</td></tr>';
+
+    return;
+
+  }
+
+
+  table.innerHTML =
+    triggeredEvents.map(item=>`
+
+      <tr>
+
+        <td>
+          18:${String(item.time).padStart(2,"0")}
+        </td>
+
+        <td>
+          ${item.facility}
+        </td>
+
+        <td>
+
